@@ -29,16 +29,21 @@ class SongActivity : AppCompatActivity() {
             setPlayerStatus(true)
         }
 
+        if (intent.hasExtra("title") && intent.hasExtra("singer")){
+            binding.songMusicTitleTv.text = intent.getStringExtra("title")
+            binding.songSingerNameTv.text = intent.getStringExtra("singer")
+        }
+
     }
 
 
-    fun setPlayerStatus(isPlaying : Boolean){
+    fun setPlayerStatus(isPlaying: Boolean) {
 
-        if(isPlaying){
+        if (isPlaying) {
             binding.songMiniplayerIv.visibility = View.VISIBLE
             binding.songPauseIv.visibility = View.GONE
 
-        }else{
+        } else {
 
             binding.songMiniplayerIv.visibility = View.GONE
             binding.songPauseIv.visibility = View.VISIBLE
