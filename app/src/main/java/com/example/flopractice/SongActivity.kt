@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.example.flopractice.databinding.ActivitySongBinding
+import com.google.gson.Gson
 
 class SongActivity : AppCompatActivity() {
 
@@ -13,7 +14,8 @@ class SongActivity : AppCompatActivity() {
     lateinit var binding: ActivitySongBinding
     lateinit var song: Song
     lateinit var timer: Timer
-    private var mediaPlayer : MediaPlayer? = null
+    private var mediaPlayer: MediaPlayer? = null
+    private var gson : Gson = Gson()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,7 +58,6 @@ class SongActivity : AppCompatActivity() {
     }
 
 
-
     private fun setPlayer(song: Song) {
         binding.songMusicTitleTv.text = intent.getStringExtra("title")
         binding.songSingerNameTv.text = intent.getStringExtra("singer")
@@ -69,8 +70,8 @@ class SongActivity : AppCompatActivity() {
         binding.songProgressSb.progress =
             (song.second * 1000 / song.playTime)
 
-        val music = resources.getIdentifier(song.music,"raw",this.packageName)
-        mediaPlayer = MediaPlayer.create(this,music)
+        val music = resources.getIdentifier(song.music, "raw", this.packageName)
+        mediaPlayer = MediaPlayer.create(this, music)
 
         setPlayerStatus(song.isPlaying)
     }
@@ -91,7 +92,7 @@ class SongActivity : AppCompatActivity() {
 
             binding.songMiniplayerIv.visibility = View.GONE
             binding.songPauseIv.visibility = View.VISIBLE
-            if (mediaPlayer?.isPlaying == true){
+            if (mediaPlayer?.isPlaying == true) {
                 mediaPlayer?.pause()
             }
         }
@@ -142,7 +143,7 @@ class SongActivity : AppCompatActivity() {
 
             } catch (e: InterruptedException) {
 
-                Log.d("Song","쓰레드가 죽었습니다${e.message}")
+                Log.d("Song", "쓰레드가 죽었습니다${e.message}")
 
             }
 
@@ -154,6 +155,14 @@ class SongActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         setPlayerStatus(false)
+        song.second = ((binding.songProgressSb.progress * song.playTime) / 100) / 1000
+        val sharedPreferences = getSharedPreferences("song", MODE_PRIVATE)
+        val editor = sharedPreferences.edit() // 에디터
+        val songJson = gson.toJson(song)
+        editor.putString("song",songJson)
+
+        editor.apply()
+
 
     }
 
@@ -161,5 +170,6 @@ class SongActivity : AppCompatActivity() {
         super.onDestroy()
         timer.interrupt()
         mediaPlayer?.release() // 미디어가 갖고 있던 리소스 해제
+        mediaPlayer = null // 미디어 플레이어 해제
     }
 }
